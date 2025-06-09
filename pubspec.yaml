@@ -1,0 +1,56 @@
+name: expense_tracker
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_bloc: ^8.1.3
+
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Dependency Injection
+  get_it: ^7.6.4
+
+  # Functional Programming
+  dartz: ^0.10.1
+
+  # Value Equality
+  equatable: ^2.0.5
+
+  # HTTP Client
+  http: ^1.1.0
+
+  # JSON Annotation
+  json_annotation: ^4.8.1
+
+  # Password Hashing
+  crypto: ^3.0.3
+
+  # Image Picker for Receipt Upload
+  image_picker: ^1.0.4
+
+  # File System Path
+  path: ^1.8.3
+
+  # Permissions
+  permission_handler: ^11.0.1
+
+  # UI
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.4.2
+  build_runner: ^2.4.7
+flutter:
+  uses-material-design: true
