@@ -1,0 +1,79 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Java (required for Android build)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Step 3: Setup Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+
+      # Step 4: Get Flutter dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Step 5: Run Flutter analyze
+      - name: Analyze code
+        run: flutter analyze
+
+      # Step 6: Run tests
+      - name: Run tests
+        run: flutter test
+
+      # Step 7: Build APK (debug version for testing)
+      - name: Build APK
+        run: flutter build apk --debug
+
+      # Step 8: Build App Bundle (debug version)
+      - name: Build App Bundle
+        run: flutter build appbundle --debug
+
+      # Step 9: Upload APK as artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: flutter-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+
+      # Step 10: Upload App Bundle as artifact
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: flutter-appbundle
+          path: build/app/outputs/bundle/debug/app-debug.aab
+
+      # Step 11: Create a build summary
+      - name: Create build summary
+        if: success()
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ APK built successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ App Bundle built successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- Flutter Version: $(flutter --version | head -n 1)" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Number: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
