@@ -1,4 +1,3 @@
-// lib/domain/usecases/auth/auth_usecase.dart
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:expense_tracker/src/core/error/failures.dart';

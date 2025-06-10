@@ -1,4 +1,3 @@
-// lib/presentation/screens/add_expense/widgets/receipt_upload_widget.dart
 import 'package:flutter/material.dart';
 import 'dart:io';
 

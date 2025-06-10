@@ -1,4 +1,3 @@
-// lib/presentation/screens/dashboard/widgets/filter_tabs.dart
 import 'package:flutter/material.dart';
 import '../../../../domain/entities/expense_filter.dart';
 

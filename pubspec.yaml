@@ -47,6 +47,9 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.6
 
+  #responsive ui
+  flutter_screenutil: ^5.9.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -54,3 +57,6 @@ dev_dependencies:
   build_runner: ^2.4.7
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/

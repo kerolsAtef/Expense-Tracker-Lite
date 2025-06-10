@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../injector.dart' as di;
 import '../../add_expense/screen/add_expense_screen.dart';
 import '../../add_expense/widgets/expense_list.dart';
@@ -70,36 +69,140 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: CustomScrollView(
                     controller: _scrollController,
                     slivers: [
-                      // Custom App Bar with Gradient
                       SliverAppBar(
-                        backgroundColor: const Color(0xFF6C5CE7),
+                        backgroundColor: const Color(0xFF5B6CF6),
                         elevation: 0,
-                        pinned: true,
-                        expandedHeight: 120,
-                        flexibleSpace: const FlexibleSpaceBar(
-                          background: DashboardHeader(),
+                        expandedHeight: 350,
+                        collapsedHeight: 56,
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Stack(
+                            children: [
+                              Column(
+                                children: [
+                                  // Upper half (gradient)
+                                  Expanded(
+                                    flex: 6,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFF5B6CF6),
+                                            Color(0xFF7B70F4),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Lower half (white)
+                                  Expanded(
+                                    flex: 3,
+                                    child: Container(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // Foreground UI (user header & summary card)
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        BlocBuilder<AuthCubit, AuthState>(
+                                          builder: (context, state) {
+                                            String userName = 'User';
+                                            String userEmail = '';
+                                            if (state is AuthAuthenticated) {
+                                              userName = state.user.name;
+                                              userEmail = state.user.email;
+                                            }
+
+                                            return Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 24,
+                                                  backgroundColor: Colors.white,
+                                                  child: Text(
+                                                    userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF5B6CF6),
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Good ${_getGreeting()}',
+                                                      style: TextStyle(
+                                                        color: Colors.white.withOpacity(0.9),
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      userName,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                                              onPressed: () {
+                                                // TODO: Implement notifications
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.logout, color: Colors.white),
+                                              onPressed: () {
+                                                _showLogoutDialog(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Add spacing before SummaryCards so it sits properly
+                                ],
+                              ),
+
+                              // Summary Cards
+                              if (state is DashboardLoaded)
+                                Positioned(
+                                  top: 120,
+                                  left: 0,
+                                  right: 0,
+                                  child: SummaryCards(summary: state.summary),
+                                ),
+                            ],
+                          ),
                         ),
-                        actions: [
-                          IconButton(
-                            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                            onPressed: () {
-                              // TODO: Implement notifications
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.logout, color: Colors.white),
-                            onPressed: () {
-                              _showLogoutDialog(context);
-                            },
-                          ),
-                        ],
+
                       ),
 
-                      // Summary Cards
-                      if (state is DashboardLoaded)
-                        SliverToBoxAdapter(
-                          child: SummaryCards(summary: state.summary),
-                        ),
+                      // Spacer for content below the card
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 40),
+                      ),
 
                       // Filter Tabs
                       SliverToBoxAdapter(
@@ -275,6 +378,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Morning';
+    } else if (hour < 17) {
+      return 'Afternoon';
+    } else {
+      return 'Evening';
+    }
+  }
+
   Future<void> _navigateToAddExpense(BuildContext context) async {
     final result = await Navigator.of(context).pushNamed(
       AddExpenseScreen.routeName,
@@ -339,111 +453,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
     );
-  }
-}
-
-// lib/presentation/screens/dashboard/widgets/dashboard_header.dart
-class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF6C5CE7),
-            Color(0xFF5A4FCF),
-          ],
-        ),
-      ),
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          String userName = 'User';
-          String userEmail = '';
-          if (state is AuthAuthenticated) {
-            userName = state.user.name;
-            userEmail = state.user.email;
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-                        style: const TextStyle(
-                          color: Color(0xFF6C5CE7),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Good ${_getGreeting()}',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (userEmail.isNotEmpty)
-                          Text(
-                            userEmail,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Morning';
-    } else if (hour < 17) {
-      return 'Afternoon';
-    } else {
-      return 'Evening';
-    }
   }
 }
